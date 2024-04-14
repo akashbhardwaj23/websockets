@@ -1,28 +1,12 @@
-import { useEffect, useState } from 'react'
+import {useState } from 'react'
 import './App.css'
+import { useSocket } from './hooks/useSocket';
 
 function App() {
-  const [socket, setSocket] = useState<WebSocket | null>(null);
-  const [latestMessage, setLatestMessages] = useState("");
-
-  useEffect(() => {
-    const newSocket = new WebSocket('ws://localhost:3000');
-    
-    newSocket.onopen = () => {
-      console.log('Connected to server')
-      newSocket.send("Hi from Server")
-    }
-
-    newSocket.onmessage = (message) => {
-      console.log('Message from server:', message.data);
-      setLatestMessages(message.data)
-    }
-
-    setSocket(newSocket)
-
-    return () => newSocket.close();
-
-  }, [])
+  
+  const [message, setMessage] = useState("");
+  
+  const {socket, latestMessage} = useSocket();
 
   if(!socket){
     return <div>
@@ -30,20 +14,18 @@ function App() {
     </div>
   }
 
-
   return (
     <>
      <div>
-      Hi there
 
-    <input type="text" />
+    <input type="text" onChange={(e) => setMessage(e.target.value)}/>
 
     <button onClick={() => {
-      socket.send("Hi there whats up")
+      socket.send(message)
     }}>Send</button>
-      {JSON.stringify(socket)}
-
-      {latestMessage}
+  <div>
+    {latestMessage}
+  </div>
      </div>
     </>
   )
